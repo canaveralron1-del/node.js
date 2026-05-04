@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "title": "Broken Street Light",
+    "description": "Street light broken for 2 weeks, very dark at night",
+    "urgency": "high",
+    "location": "123 Main Street",
+    "status": "pending",
+    "userId": 1,
+    "reporterName": "John Resident",
+    "createdAt": "2026-04-26T00:15:40.468Z",
+    "photoUrl": null,
+    "assignedTo": null
+  },
+  {
+    "id": 2,
+    "title": "Large Pothole",
+    "description": "Dangerous pothole that damaged my tire",
+    "urgency": "medium",
+    "location": "Oak Avenue",
+    "status": "investigating",
+    "userId": 2,
+    "reporterName": "Alice Chen",
+    "createdAt": "2026-04-26T00:15:40.468Z",
+    "photoUrl": null,
+    "assignedTo": 3
+  },
+  {
+    "id": 3,
+    "title": "Flooded Street",
+    "description": "Heavy flooding, cars cannot pass",
+    "urgency": "emergency",
+    "location": "River Road",
+    "status": "pending",
+    "userId": 1,
+    "reporterName": "John Resident",
+    "createdAt": "2026-04-26T00:15:40.468Z",
+    "photoUrl": null,
+    "assignedTo": null
+  },
+  {
+    "id": 4,
+    "title": "Gg",
+    "description": "Gg",
+    "urgency": "low",
+    "location": "Unknown location",
+    "status": "pending",
+    "userId": 5,
+    "reporterName": "Rin",
+    "createdAt": "2026-04-30T02:19:01.615Z",
+    "photoUrl": null,
+    "assignedTo": null
+  }
+]

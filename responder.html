@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<meta name="theme-color" content="#667eea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Responder Dashboard - CivicFix</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Modern Header with Sidebar Button -->
+        <header class="modern-header">
+            <button id="menuBtn" class="menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo-section">
+                <i class="fas fa-city"></i>
+                <h1>CivicFix <span class="responder-badge-header">Responder</span></h1>
+            </div>
+            <div class="header-right"></div>
+        </header>
+
+        <!-- Sidebar Menu for Responder -->
+        <div id="sidebar" class="sidebar">
+            <div class="sidebar-header" style="background: linear-gradient(135deg, #f59e0b, #ea580c);">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-details">
+                    <span id="sidebarUserName">Loading...</span>
+                    <small id="sidebarUserDept">Responder</small>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <button id="dashboardBtn" class="sidebar-item active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button id="unassignedBtn" class="sidebar-item">
+                    <i class="fas fa-inbox"></i>
+                    <span>Unassigned Reports</span>
+                    <span id="unassignedCount" class="badge">0</span>
+                </button>
+                <button id="myAssignedBtn" class="sidebar-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>My Assignments</span>
+                    <span id="myAssignedCount" class="badge">0</span>
+                </button>
+                <button id="resolvedBtn" class="sidebar-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Resolved Reports</span>
+                </button>
+                <button id="myProfileBtn" class="sidebar-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </button>
+                <button id="settingsBtn" class="sidebar-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                <hr class="sidebar-divider">
+                <button id="switchToResidentBtn" class="sidebar-item">
+                    <i class="fas fa-home"></i>
+                    <span>Resident View</span>
+                </button>
+                <button id="logoutBtnSidebar" class="sidebar-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Overlay -->
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <!-- Main Content -->
+        <div class="main-content responder-content">
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card emergency-stat">
+                    <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-number" id="emergencyCount">0</div>
+                    <div class="stat-label">Emergency Reports</div>
+                </div>
+                <div class="stat-card high-stat">
+                    <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+                    <div class="stat-number" id="highCount">0</div>
+                    <div class="stat-label">High Urgency</div>
+                </div>
+                <div class="stat-card assigned-stat">
+                    <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-number" id="assignedCount">0</div>
+                    <div class="stat-label">Assigned to Me</div>
+                </div>
+                <div class="stat-card resolved-stat">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-number" id="resolvedToday">0</div>
+                    <div class="stat-label">Resolved Today</div>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="responder-filters">
+                <button class="filter-tab active" data-view="unassigned">
+                    <i class="fas fa-inbox"></i> Unassigned
+                    <span id="filterUnassignedCount" class="filter-badge">0</span>
+                </button>
+                <button class="filter-tab" data-view="assigned">
+                    <i class="fas fa-clipboard-list"></i> My Assignments
+                    <span id="filterAssignedCount" class="filter-badge">0</span>
+                </button>
+                <button class="filter-tab" data-view="all">
+                    <i class="fas fa-list"></i> All Active
+                </button>
+            </div>
+
+            <!-- Reports Queue (Facebook-style cards) -->
+            <div id="reportsQueue" class="reports-feed">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Loading reports...
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Modal (for when clicking a report card) -->
+        <div id="chatModal" class="modal">
+            <div class="modal-content modal-large">
+                <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b, #ea580c);">
+                    <h3><i class="fas fa-comments"></i> Conversation with Resident</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Report Details Section -->
+                    <div id="modalReportDetails" class="modal-report-details"></div>
+                    
+                    <!-- Divider -->
+                    <div class="modal-divider">
+                        <span><i class="fas fa-comments"></i> Chat Discussion</span>
+                    </div>
+                    
+                    <!-- Chat Section -->
+                    <div id="modalChatSection" class="modal-chat-section">
+                        <div id="modalChatMessages" class="chat-messages">
+                            <div class="system-message">Loading conversation...</div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="modalChatInput" placeholder="Type your response...">
+                            <button id="modalSendBtn">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </div>
+                        <div class="status-controls">
+                            <select id="modalUpdateStatus">
+                                <option value="pending">🟡 Pending</option>
+                                <option value="investigating">🔵 Investigating</option>
+                                <option value="resolved">✅ Resolved</option>
+                            </select>
+                            <button id="modalUpdateStatusBtn" class="btn-secondary">Update Status</button>
+                            <button id="modalAssignToMeBtn" class="btn-primary">Assign to Me</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Modal -->
+        <div id="profileModal" class="modal">
+            <div class="modal-content modal-small">
+                <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b, #ea580c);">
+                    <h3><i class="fas fa-user"></i> My Profile</h3>
+                    <button class="profile-modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="profile-info">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-shield" style="font-size: 80px; color: #f59e0b;"></i>
+                        </div>
+                        <div class="profile-field">
+                            <label>Name</label>
+                            <input type="text" id="profileName" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Employee ID</label>
+                            <input type="text" id="profileEmpId" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Department</label>
+                            <input type="text" id="profileDept" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Reports Handled</label>
+                            <input type="text" id="profileHandled" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content modal-small">
+                <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b, #ea580c);">
+                    <h3><i class="fas fa-cog"></i> Settings</h3>
+                    <button class="settings-modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-section">
+                        <h4>Notifications</h4>
+                        <label class="switch-label">
+                            <input type="checkbox" id="notifyMessages">
+                            <span>Sound for new messages</span>
+                        </label>
+                        <label class="switch-label">
+                            <input type="checkbox" id="notifyAssignments">
+                            <span>Notify when assigned to report</span>
+                        </label>
+                    </div>
+                    <div class="settings-section">
+                        <h4>Theme</h4>
+                        <select id="themeSelect" class="theme-select">
+                            <option value="light">Light Mode</option>
+                            <option value="dark">Dark Mode</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="responder.js"></script>
+</body>
+</html>

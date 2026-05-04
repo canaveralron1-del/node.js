@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+<meta name="theme-color" content="#667eea">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CivicFix - Community Issue Reporting</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Modern Header -->
+        <header class="modern-header">
+            <button id="menuBtn" class="menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo-section">
+                <i class="fas fa-city"></i>
+                <h1>CivicFix</h1>
+            </div>
+            <div class="header-right"></div>
+        </header>
+
+        <!-- Complete Sidebar Menu -->
+        <div id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <span id="sidebarUserName">Loading...</span>
+                    <small id="sidebarUserRole">Resident</small>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <button id="newReportBtn" class="sidebar-item primary">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Report</span>
+                </button>
+                <button id="myProfileBtn" class="sidebar-item">
+                    <i class="fas fa-user"></i>
+                    <span>My Profile</span>
+                </button>
+                <button id="myReportsBtn" class="sidebar-item">
+                    <i class="fas fa-list-ul"></i>
+                    <span>My Reports</span>
+                </button>
+                <button id="allReportsBtn" class="sidebar-item active">
+                    <i class="fas fa-newspaper"></i>
+                    <span>All Reports</span>
+                </button>
+                <button id="savedBtn" class="sidebar-item">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Saved Items</span>
+                    <span id="savedCount" class="badge">0</span>
+                </button>
+                <button id="settingsBtn" class="sidebar-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+                <hr class="sidebar-divider">
+                <button id="logoutBtnSidebar" class="sidebar-item logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Overlay -->
+        <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- FAB for Mobile -->
+            <button id="fabNewReport" class="fab">
+                <i class="fas fa-plus"></i>
+            </button>
+
+            <!-- Create Report Form -->
+            <div id="reportFormContainer" class="report-form-container hidden">
+                <div class="form-card">
+                    <div class="form-header">
+                        <h3><i class="fas fa-pen-alt"></i> Report New Issue</h3>
+                        <button id="closeFormBtn" class="close-btn">&times;</button>
+                    </div>
+                    <form id="reportForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input type="text" id="title" placeholder="What's the problem?" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea id="description" rows="3" placeholder="Tell us more about the issue..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="urgency">Urgency Level</label>
+                            <select id="urgency">
+                                <option value="low">🟢 Low - Minor issue</option>
+                                <option value="medium">🟡 Medium - Needs attention</option>
+                                <option value="high">🟠 High - Urgent</option>
+                                <option value="emergency">🔴 Emergency - Immediate danger</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="photo">Photo (optional)</label>
+                            <input type="file" id="photo" accept="image/*">
+                            <div id="photoPreview" class="photo-preview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Location</label>
+                            <button type="button" id="getLocationBtn" class="btn-secondary">
+                                <i class="fas fa-location-dot"></i> Get My Location
+                            </button>
+                            <input type="text" id="location" placeholder="Or type address">
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Profile Modal -->
+            <div id="profileModal" class="modal">
+                <div class="modal-content modal-small">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-user"></i> My Profile</h3>
+                        <button class="profile-modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="profile-info">
+                            <div class="profile-avatar">
+                                <i class="fas fa-user-circle" style="font-size: 80px; color: #667eea;"></i>
+                            </div>
+                            <div class="profile-field">
+                                <label>Name</label>
+                                <input type="text" id="profileName" readonly>
+                            </div>
+                            <div class="profile-field">
+                                <label>Email</label>
+                                <input type="email" id="profileEmail" readonly>
+                            </div>
+                            <div class="profile-field">
+                                <label>Member Since</label>
+                                <input type="text" id="profileJoinDate" readonly>
+                            </div>
+                            <div class="profile-field">
+                                <label>Total Reports</label>
+                                <input type="text" id="profileReportCount" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="settingsModal" class="modal">
+                <div class="modal-content modal-small">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-cog"></i> Settings</h3>
+                        <button class="settings-modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="settings-section">
+                            <h4>Notifications</h4>
+                            <label class="switch-label">
+                                <input type="checkbox" id="notifyMessages">
+                                <span>Sound notifications for new messages</span>
+                            </label>
+                            <label class="switch-label">
+                                <input type="checkbox" id="notifyStatus">
+                                <span>Notify when report status changes</span>
+                            </label>
+                        </div>
+                        <div class="settings-section">
+                            <h4>Privacy</h4>
+                            <label class="switch-label">
+                                <input type="checkbox" id="showEmail">
+                                <span>Show my email to responders</span>
+                            </label>
+                        </div>
+                        <div class="settings-section">
+                            <h4>Theme</h4>
+                            <select id="themeSelect" class="theme-select">
+                                <option value="light">Light Mode</option>
+                                <option value="dark">Dark Mode</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feed Filters -->
+            <div class="feed-filters">
+                <button class="feed-filter-btn active" data-filter="all">All Reports</button>
+                <button class="feed-filter-btn" data-filter="pending">Pending</button>
+                <button class="feed-filter-btn" data-filter="investigating">Investigating</button>
+                <button class="feed-filter-btn" data-filter="resolved">Resolved</button>
+            </div>
+
+            <!-- Facebook-style Feed -->
+            <div id="reportsFeed" class="reports-feed">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i> Loading reports...
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Report Details + Chat -->
+        <div id="reportModal" class="modal">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3><i class="fas fa-file-alt"></i> Report Details</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalReportDetails" class="modal-report-details"></div>
+                    <div class="modal-divider">
+                        <span><i class="fas fa-comments"></i> Discussion</span>
+                    </div>
+                    <div id="modalChatSection" class="modal-chat-section">
+                        <div id="modalChatMessages" class="chat-messages">
+                            <div class="system-message">Loading conversation...</div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="modalChatInput" placeholder="Type your message...">
+                            <button id="modalSendBtn">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicFix - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="login-body">
+    <div class="login-wrapper">
+        <!-- Left Side - Brand -->
+        <div class="login-brand">
+            <div class="brand-content">
+                <div class="brand-icon">🏘️</div>
+                <h1>CivicFix</h1>
+                <p>Report issues in your community<br>Get them fixed faster</p>
+                <div class="brand-stats">
+                    <div class="stat">
+                        <span class="stat-number">1,234+</span>
+                        <span class="stat-label">Issues Resolved</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">98%</span>
+                        <span class="stat-label">Response Rate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Forms -->
+        <div class="login-form-container">
+            <div class="form-tabs">
+                <button class="form-tab active" data-tab="login">Login</button>
+                <button class="form-tab" data-tab="register">Register</button>
+            </div>
+
+            <!-- LOGIN PANEL -->
+            <div id="loginPanel" class="form-panel active">
+                <div class="role-selector">
+                    <button class="role-option active" data-role="resident-login">
+                        👤 Resident
+                    </button>
+                    <button class="role-option" data-role="responder-login">
+                        🛠️ Responder
+                    </button>
+                </div>
+
+                <!-- Resident Login -->
+                <form id="residentLoginForm" class="role-form active">
+                    <div class="input-field">
+                        <input type="email" id="loginResidentEmail" placeholder=" " required>
+                        <label>Email Address</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="password" id="loginResidentPassword" placeholder=" " required>
+                        <label>Password</label>
+                    </div>
+                    <button type="submit" class="submit-btn">Login as Resident →</button>
+                    <div class="demo-hint">Demo: resident@demo.com / 123456</div>
+                </form>
+
+                <!-- Responder Login -->
+                <form id="responderLoginForm" class="role-form">
+                    <div class="input-field">
+                        <input type="text" id="loginResponderId" placeholder=" " required>
+                        <label>Employee ID</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="password" id="loginResponderPassword" placeholder=" " required>
+                        <label>Password</label>
+                    </div>
+                    <button type="submit" class="submit-btn responder-btn">Login as Responder →</button>
+                    <div class="demo-hint">Demo: RES-001 / 123456</div>
+                </form>
+            </div>
+
+            <!-- REGISTER PANEL -->
+            <div id="registerPanel" class="form-panel">
+                <div class="role-selector">
+                    <button class="role-option active" data-role="resident-register">
+                        👤 Register as Resident
+                    </button>
+                    <button class="role-option" data-role="responder-register">
+                        🛠️ Register as Responder
+                    </button>
+                </div>
+
+                <!-- Resident Registration -->
+                <form id="residentRegisterForm" class="role-form active">
+                    <div class="input-field">
+                        <input type="text" id="regResidentName" placeholder=" " required>
+                        <label>Full Name</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="email" id="regResidentEmail" placeholder=" " required>
+                        <label>Email Address</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="password" id="regResidentPassword" placeholder=" " required>
+                        <label>Password</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="tel" id="regResidentPhone" placeholder=" " required>
+                        <label>Phone Number</label>
+                    </div>
+                    <button type="submit" class="submit-btn">Create Account →</button>
+                </form>
+
+                <!-- Responder Registration -->
+                <form id="responderRegisterForm" class="role-form">
+                    <div class="input-field">
+                        <input type="text" id="regResponderName" placeholder=" " required>
+                        <label>Full Name</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" id="regResponderDept" placeholder=" " required>
+                        <label>Department</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="password" id="regResponderPassword" placeholder=" " required>
+                        <label>Set Password</label>
+                    </div>
+                    <div class="input-field">
+                        <input type="text" id="regResponderBadge" placeholder=" " required>
+                        <label>Badge Number</label>
+                    </div>
+                    <button type="submit" class="submit-btn responder-btn">Register as Responder →</button>
+                    <div class="demo-hint">* Responder accounts need admin approval</div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.1.1",
+    "mysql2": "^3.22.2",
+    "node": "^24.15.0",
+    "server.js": "^1.0.0",
+    "socket.io": "^4.8.3"
+  }
+}
