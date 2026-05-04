@@ -1,5 +1,5 @@
 // API Base URL
-const API_URL = '';
+const API_URL = 'https://resident-report-app.onrender.com';
 
 // Tab switching
 document.addEventListener('DOMContentLoaded', () => {
