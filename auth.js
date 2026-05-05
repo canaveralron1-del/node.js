@@ -1,5 +1,5 @@
 // API Base URL
-const API_URL = 'https://resident-report-app.onrender.com';
+const API_URL = '';
 
 // Tab switching
 document.addEventListener('DOMContentLoaded', () => {
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('loginResidentPassword').value;
             
             try {
-                const response = await fetch('/api/login/resident', {
+                const response = await fetch(`${API_URL}/api/login/resident`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })

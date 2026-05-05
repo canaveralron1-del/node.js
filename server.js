@@ -4,6 +4,7 @@ const socketIo = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const mysql = require('mysql2');
 
 const app = express();
 const server = http.createServer(app);
@@ -31,304 +32,318 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// ============ PERSISTENT STORAGE (Using JSON files) ============
-const REPORTS_FILE = './reports.json';
-const MESSAGES_FILE = './messages.json';
-const USERS_FILE = './users.json';
+// ============ MySQL CONNECTION (Using Railway Environment Variables) ============
+const pool = mysql.createPool({
+    host: process.env.MYSQLHOST || 'localhost',
+    port: process.env.MYSQLPORT || 3306,
+    user: process.env.MYSQLUSER || 'root',
+    password: process.env.MYSQLPASSWORD || '',
+    database: process.env.MYSQLDATABASE || 'railway',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 
-// Load data from files
-let reports = [];
-let messages = [];
-let users = [];
-let nextReportId = 1;
-let nextMessageId = 1;
-let nextUserId = 1;
+const promisePool = pool.promise();
 
-// Load users.json if exists
-if (fs.existsSync(USERS_FILE)) {
-    users = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
-    nextUserId = Math.max(...users.map(u => u.id), 0) + 1;
-    console.log(`✅ Loaded ${users.length} users from file`);
-} else {
-    // Create default users
-    users = [
-        { id: nextUserId++, name: "John Resident", email: "resident@demo.com", password: "123456", role: "resident", phone: "1234567890", createdAt: new Date().toISOString() },
-        { id: nextUserId++, name: "Alice Chen", email: "alice@demo.com", password: "123456", role: "resident", phone: "1234567890", createdAt: new Date().toISOString() },
-        { id: nextUserId++, name: "Officer Mike", empId: "RES-001", password: "123456", role: "responder", department: "Street Maintenance", createdAt: new Date().toISOString() },
-        { id: nextUserId++, name: "Officer Sarah", empId: "RES-002", password: "123456", role: "responder", department: "Emergency Response", createdAt: new Date().toISOString() }
-    ];
-    saveUsers();
-}
-
-// Load reports.json if exists
-if (fs.existsSync(REPORTS_FILE)) {
-    reports = JSON.parse(fs.readFileSync(REPORTS_FILE, 'utf8'));
-    nextReportId = Math.max(...reports.map(r => r.id), 0) + 1;
-    console.log(`✅ Loaded ${reports.length} reports from file`);
-} else {
-    // Sample reports
-    reports.push({
-        id: nextReportId++,
-        title: "Broken Street Light",
-        description: "Street light broken for 2 weeks, very dark at night",
-        urgency: "high",
-        location: "123 Main Street",
-        status: "pending",
-        residentId: 1,
-        residentName: "John Resident",
-        createdAt: new Date().toISOString(),
-        photo: null,
-        assignedTo: null
-    });
-    
-    reports.push({
-        id: nextReportId++,
-        title: "Large Pothole",
-        description: "Dangerous pothole that damaged my tire",
-        urgency: "medium",
-        location: "Oak Avenue",
-        status: "investigating",
-        residentId: 2,
-        residentName: "Alice Chen",
-        createdAt: new Date().toISOString(),
-        photo: null,
-        assignedTo: 3
-    });
-    
-    reports.push({
-        id: nextReportId++,
-        title: "Flooded Street",
-        description: "Heavy flooding, cars cannot pass",
-        urgency: "emergency",
-        location: "River Road",
-        status: "pending",
-        residentId: 1,
-        residentName: "John Resident",
-        createdAt: new Date().toISOString(),
-        photo: null,
-        assignedTo: null
-    });
-    saveReports();
-}
-
-// Load messages.json if exists
-if (fs.existsSync(MESSAGES_FILE)) {
-    messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf8'));
-    nextMessageId = Math.max(...messages.map(m => m.id), 0) + 1;
-    console.log(`✅ Loaded ${messages.length} messages from file`);
-}
-
-// Save functions
-function saveUsers() {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-}
-
-function saveReports() {
-    fs.writeFileSync(REPORTS_FILE, JSON.stringify(reports, null, 2));
-}
-
-function saveMessages() {
-    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+// ============ INITIALIZE DATABASE TABLES ============
+async function initDatabase() {
+    try {
+        // Create users table
+        await promisePool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255),
+                password VARCHAR(255) NOT NULL,
+                role VARCHAR(50) NOT NULL,
+                phone VARCHAR(50),
+                empId VARCHAR(50),
+                department VARCHAR(255),
+                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Create reports table
+        await promisePool.query(`
+            CREATE TABLE IF NOT EXISTS reports (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                title VARCHAR(255) NOT NULL,
+                description TEXT,
+                urgency VARCHAR(50),
+                location VARCHAR(255),
+                status VARCHAR(50) DEFAULT 'pending',
+                residentId INT,
+                residentName VARCHAR(255),
+                photo VARCHAR(500),
+                assignedTo INT,
+                createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Create messages table
+        await promisePool.query(`
+            CREATE TABLE IF NOT EXISTS messages (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                reportId INT NOT NULL,
+                message TEXT NOT NULL,
+                senderId INT NOT NULL,
+                senderName VARCHAR(255) NOT NULL,
+                senderRole VARCHAR(50) NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Check if users exist, if not, insert demo data
+        const [users] = await promisePool.query('SELECT COUNT(*) as count FROM users');
+        if (users[0].count === 0) {
+            console.log('📝 Inserting demo data...');
+            
+            await promisePool.query(`
+                INSERT INTO users (name, email, password, role, phone) VALUES 
+                ('John Resident', 'resident@demo.com', '123456', 'resident', '1234567890'),
+                ('Alice Chen', 'alice@demo.com', '123456', 'resident', '1234567890'),
+                ('Officer Mike', NULL, '123456', 'responder', NULL, 'RES-001', 'Street Maintenance'),
+                ('Officer Sarah', NULL, '123456', 'responder', NULL, 'RES-002', 'Emergency Response')
+            `);
+            
+            await promisePool.query(`
+                INSERT INTO reports (title, description, urgency, location, status, residentId, residentName) VALUES 
+                ('Broken Street Light', 'Street light broken for 2 weeks, very dark at night', 'high', '123 Main Street', 'pending', 1, 'John Resident'),
+                ('Large Pothole', 'Dangerous pothole that damaged my tire', 'medium', 'Oak Avenue', 'investigating', 2, 'Alice Chen'),
+                ('Flooded Street', 'Heavy flooding, cars cannot pass', 'emergency', 'River Road', 'pending', 1, 'John Resident')
+            `);
+            
+            console.log('✅ Demo data inserted');
+        }
+        
+        console.log('✅ Database tables ready');
+    } catch (error) {
+        console.error('❌ Database initialization error:', error);
+    }
 }
 
 // ============ USER API ROUTES ============
 
 // Resident Login
-app.post('/api/login/resident', (req, res) => {
+app.post('/api/login/resident', async (req, res) => {
     const { email, password } = req.body;
-    const user = users.find(u => u.email === email && u.password === password && u.role === 'resident');
-    
-    if (user) {
-        res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
-    } else {
-        res.status(401).json({ error: 'Invalid credentials' });
+    try {
+        const [rows] = await promisePool.query(
+            'SELECT * FROM users WHERE email = ? AND password = ? AND role = "resident"',
+            [email, password]
+        );
+        
+        if (rows.length > 0) {
+            const user = rows[0];
+            res.json({ id: user.id, name: user.name, email: user.email, role: user.role });
+        } else {
+            res.status(401).json({ error: 'Invalid credentials' });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
 // Responder Login
-app.post('/api/login/responder', (req, res) => {
+app.post('/api/login/responder', async (req, res) => {
     const { empId, password } = req.body;
-    const user = users.find(u => u.empId === empId && u.password === password && u.role === 'responder');
-    
-    if (user) {
-        res.json({ id: user.id, name: user.name, empId: user.empId, department: user.department, role: user.role });
-    } else {
-        res.status(401).json({ error: 'Invalid credentials' });
+    try {
+        const [rows] = await promisePool.query(
+            'SELECT * FROM users WHERE empId = ? AND password = ? AND role = "responder"',
+            [empId, password]
+        );
+        
+        if (rows.length > 0) {
+            const user = rows[0];
+            res.json({ id: user.id, name: user.name, empId: user.empId, department: user.department, role: user.role });
+        } else {
+            res.status(401).json({ error: 'Invalid credentials' });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
 // Resident Registration
-app.post('/api/register/resident', (req, res) => {
+app.post('/api/register/resident', async (req, res) => {
     const { name, email, password, phone } = req.body;
     
-    const existingUser = users.find(u => u.email === email);
-    if (existingUser) {
-        res.status(400).json({ error: 'Email already registered' });
-        return;
+    try {
+        const [existing] = await promisePool.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (existing.length > 0) {
+            res.status(400).json({ error: 'Email already registered' });
+            return;
+        }
+        
+        const [result] = await promisePool.query(
+            'INSERT INTO users (name, email, password, role, phone) VALUES (?, ?, ?, "resident", ?)',
+            [name, email, password, phone]
+        );
+        
+        res.json({ id: result.insertId, name: name, email: email, role: 'resident' });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ error: 'Server error' });
     }
-    
-    const newUser = {
-        id: nextUserId++,
-        name: name,
-        email: email,
-        password: password,
-        phone: phone,
-        role: 'resident',
-        createdAt: new Date().toISOString()
-    };
-    
-    users.push(newUser);
-    saveUsers();
-    
-    res.json({ id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role });
 });
 
 // Check server status
-app.get('/api/login/check', (req, res) => {
-    res.json({ status: 'ok', users: users.length });
+app.get('/api/login/check', async (req, res) => {
+    try {
+        const [users] = await promisePool.query('SELECT COUNT(*) as count FROM users');
+        res.json({ status: 'ok', users: users[0].count });
+    } catch (error) {
+        res.json({ status: 'ok', users: 0 });
+    }
 });
 
 // Get all users
-app.get('/api/users', (req, res) => {
-    res.json(users.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role })));
+app.get('/api/users', async (req, res) => {
+    try {
+        const [rows] = await promisePool.query('SELECT id, name, email, role FROM users');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 // ============ REPORT API ROUTES ============
 
 // Get all reports
-app.get('/api/reports', (req, res) => {
-    res.json(reports);
-});
-
-// ✅ NEW: Get single report by ID (THIS WAS MISSING!)
-app.get('/api/reports/:id', (req, res) => {
-    const reportId = parseInt(req.params.id);
-    const report = reports.find(r => r.id === reportId);
-    
-    if (!report) {
-        return res.status(404).json({ error: 'Report not found' });
+app.get('/api/reports', async (req, res) => {
+    try {
+        const [rows] = await promisePool.query('SELECT * FROM reports ORDER BY createdAt DESC');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
     }
-    
-    res.json(report);
 });
 
-// ✅ NEW: Get reports by resident ID
-app.get('/api/reports/resident/:residentId', (req, res) => {
-    const residentId = parseInt(req.params.residentId);
-    const userReports = reports.filter(r => r.residentId === residentId);
-    res.json(userReports);
+// Get single report by ID
+app.get('/api/reports/:id', async (req, res) => {
+    try {
+        const [rows] = await promisePool.query('SELECT * FROM reports WHERE id = ?', [req.params.id]);
+        if (rows.length === 0) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
-// ✅ NEW: Get messages for a report
-app.get('/api/messages/:reportId', (req, res) => {
-    const reportId = parseInt(req.params.reportId);
-    const reportMessages = messages.filter(m => m.reportId === reportId);
-    res.json(reportMessages);
+// Get reports by resident ID
+app.get('/api/reports/resident/:residentId', async (req, res) => {
+    try {
+        const [rows] = await promisePool.query(
+            'SELECT * FROM reports WHERE residentId = ? ORDER BY createdAt DESC',
+            [req.params.residentId]
+        );
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Get messages for a report
+app.get('/api/messages/:reportId', async (req, res) => {
+    try {
+        const [rows] = await promisePool.query(
+            'SELECT * FROM messages WHERE reportId = ? ORDER BY timestamp ASC',
+            [req.params.reportId]
+        );
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 // Create new report with photo upload
-app.post('/api/reports', upload.single('photo'), (req, res) => {
+app.post('/api/reports', upload.single('photo'), async (req, res) => {
     const { title, description, urgency, location, residentId, residentName } = req.body;
     
-    const newReport = {
-        id: nextReportId++,
-        title: title,
-        description: description,
-        urgency: urgency || 'medium',
-        location: location || 'Location not specified',
-        status: 'pending',
-        residentId: parseInt(residentId) || 0,
-        residentName: residentName || 'Anonymous',
-        createdAt: new Date().toISOString(),
-        photo: req.file ? `/uploads/${req.file.filename}` : null,
-        assignedTo: null
-    };
-    
-    reports.push(newReport);
-    saveReports();
-    
-    // Broadcast to all connected clients
-    io.emit('report-updated', { reportId: newReport.id, action: 'created' });
-    
-    res.status(201).json(newReport);
+    try {
+        const [result] = await promisePool.query(
+            'INSERT INTO reports (title, description, urgency, location, status, residentId, residentName, photo) VALUES (?, ?, ?, ?, "pending", ?, ?, ?)',
+            [title, description, urgency || 'medium', location || 'Location not specified', residentId || 0, residentName || 'Anonymous', req.file ? `/uploads/${req.file.filename}` : null]
+        );
+        
+        const [newReport] = await promisePool.query('SELECT * FROM reports WHERE id = ?', [result.insertId]);
+        
+        // Broadcast to all connected clients
+        io.emit('report-updated', { reportId: result.insertId, action: 'created' });
+        
+        res.status(201).json(newReport[0]);
+    } catch (error) {
+        console.error('Error creating report:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 // Update report status
-app.put('/api/reports/:id/status', (req, res) => {
+app.put('/api/reports/:id/status', async (req, res) => {
     const { status } = req.body;
-    const report = reports.find(r => r.id == parseInt(req.params.id));
-    
-    if (report) {
-        report.status = status;
-        report.updatedAt = new Date().toISOString();
-        saveReports();
-        io.emit('report-updated', { reportId: report.id, status: status });
-        res.json(report);
-    } else {
-        res.status(404).json({ error: 'Report not found' });
+    try {
+        await promisePool.query('UPDATE reports SET status = ? WHERE id = ?', [status, req.params.id]);
+        
+        const [updated] = await promisePool.query('SELECT * FROM reports WHERE id = ?', [req.params.id]);
+        io.emit('report-updated', { reportId: parseInt(req.params.id), status: status });
+        res.json(updated[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
 // Assign report to responder
-app.post('/api/reports/:id/assign', (req, res) => {
+app.post('/api/reports/:id/assign', async (req, res) => {
     const { responderId } = req.body;
-    const report = reports.find(r => r.id == parseInt(req.params.id));
-    
-    if (report) {
-        report.assignedTo = parseInt(responderId);
-        report.status = 'investigating';
-        report.updatedAt = new Date().toISOString();
-        saveReports();
-        io.emit('report-updated', { reportId: report.id, status: 'investigating', assignedTo: responderId });
-        res.json(report);
-    } else {
-        res.status(404).json({ error: 'Report not found' });
+    try {
+        await promisePool.query(
+            'UPDATE reports SET assignedTo = ?, status = "investigating" WHERE id = ?',
+            [responderId, req.params.id]
+        );
+        
+        const [updated] = await promisePool.query('SELECT * FROM reports WHERE id = ?', [req.params.id]);
+        io.emit('report-updated', { reportId: parseInt(req.params.id), status: 'investigating', assignedTo: responderId });
+        res.json(updated[0]);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
-// ============ WEBSOCKET CHAT (UPDATED) ============
+// ============ WEBSOCKET CHAT ============
 io.on('connection', (socket) => {
     console.log('🔌 New client connected:', socket.id);
     
-    // Join a report room
     socket.on('join-room', (roomId) => {
         socket.join(roomId);
         console.log(`📡 Socket ${socket.id} joined room: ${roomId}`);
     });
     
-    // Leave a report room
     socket.on('leave-room', (roomId) => {
         socket.leave(roomId);
         console.log(`📡 Socket ${socket.id} left room: ${roomId}`);
     });
     
-    // Send message
-    socket.on('send-message', (data) => {
+    socket.on('send-message', async (data) => {
         console.log('💬 Chat message:', data);
         
-        const newMessage = {
-            id: nextMessageId++,
-            reportId: data.reportId,
-            message: data.message,
-            senderId: data.senderId,
-            senderName: data.senderName,
-            senderRole: data.senderRole,
-            timestamp: new Date().toISOString()
-        };
-        
-        messages.push(newMessage);
-        saveMessages();
-        
-        // Broadcast to everyone in the report room
-        io.to(`report_${data.reportId}`).emit('new-message', {
-            id: newMessage.id,
-            reportId: data.reportId,
-            message: data.message,
-            senderId: data.senderId,
-            senderName: data.senderName,
-            senderRole: data.senderRole,
-            timestamp: newMessage.timestamp
-        });
+        try {
+            const [result] = await promisePool.query(
+                'INSERT INTO messages (reportId, message, senderId, senderName, senderRole, timestamp) VALUES (?, ?, ?, ?, ?, NOW())',
+                [data.reportId, data.message, data.senderId, data.senderName, data.senderRole]
+            );
+            
+            const [newMessage] = await promisePool.query('SELECT * FROM messages WHERE id = ?', [result.insertId]);
+            
+            io.to(`report_${data.reportId}`).emit('new-message', newMessage[0]);
+        } catch (error) {
+            console.error('Error saving message:', error);
+        }
     });
     
     socket.on('disconnect', () => {
@@ -336,13 +351,19 @@ io.on('connection', (socket) => {
     });
 });
 
-// Start server
+// ============ START SERVER ============
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📋 Open in browser: http://localhost:${PORT}/login.html`);
-    console.log(`💾 Data saved to JSON files`);
-    console.log(`👥 ${users.length} users loaded`);
-    console.log(`📊 ${reports.length} reports loaded`);
-    console.log(`💬 ${messages.length} messages loaded`);
+
+// Initialize database and start server
+initDatabase().then(() => {
+    server.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`📋 Open in browser: http://localhost:${PORT}/login.html`);
+        console.log(`✅ Using MySQL database on Railway`);
+    });
+}).catch(error => {
+    console.error('❌ Failed to initialize database:', error);
+    server.listen(PORT, () => {
+        console.log(`🚀 Server running but database may not be connected`);
+    });
 });
