@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const phone = document.getElementById('regResidentPhone').value;
             
             try {
-                const response = await fetch('${API_URL}/api/register/resident', {
+                const response = await fetch(`${API_URL}/api/register/resident`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password, phone })
