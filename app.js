@@ -215,14 +215,13 @@ async function submitReport(e) {
     
     const title = document.getElementById('title').value;
     const description = document.getElementById('description').value;
-    const urgency = document.getElementById('urgency').value;
     const location = document.getElementById('location').value;
     const photo = document.getElementById('photo').files[0];
     
     const formData = new FormData();
     formData.append('title', title);
     formData.append('description', description);
-    formData.append('urgency', urgency);
+    
     formData.append('location', location);
     formData.append('residentId', currentUser.id);
     formData.append('residentName', currentUser.name);
@@ -304,8 +303,8 @@ function renderReports() {
 }
 
 function createFeedCard(report) {
-    const urgencyClass = `urgency-${report.urgency}`;
-    const urgencyText = { low: '🟢 Low', medium: '🟡 Medium', high: '🟠 High', emergency: '🔴 Emergency' }[report.urgency];
+    
+    
     const statusText = { pending: 'Pending', investigating: 'Investigating', resolved: 'Resolved' }[report.status];
     const statusClass = `status-${report.status}`;
     const timeAgo = getTimeAgo(new Date(report.createdAt));
@@ -319,10 +318,7 @@ function createFeedCard(report) {
                 </div>
                 <div class="card-user-info">
                     <div class="card-user-name">${escapeHtml(report.residentName || 'Resident')}</div>
-                    <div class="card-time">
-                        <span>${timeAgo}</span>
-                        <span class="urgency-badge ${urgencyClass}">${urgencyText}</span>
-                    </div>
+                    
                 </div>
                 <button class="save-btn ${isSaved ? 'saved' : ''}" data-id="${report.id}">
                     <i class="fas ${isSaved ? 'fa-bookmark' : 'fa-bookmark'}"></i>
@@ -524,7 +520,7 @@ async function openReportModal(reportId) {
 
 function displayReportDetails(report) {
     const container = document.getElementById('modalReportDetails');
-    const urgencyText = { low: '🟢 Low', medium: '🟡 Medium', high: '🟠 High', emergency: '🔴 Emergency' }[report.urgency];
+    
     const statusText = { pending: 'Pending', investigating: 'Investigating', resolved: 'Resolved' }[report.status];
     const statusClass = `status-${report.status}`;
     
@@ -537,10 +533,7 @@ function displayReportDetails(report) {
             <div class="report-detail-label"><i class="fas fa-align-left"></i> Description</div>
             <div class="report-detail-value">${escapeHtml(report.description)}</div>
         </div>
-        <div class="report-detail-item">
-            <div class="report-detail-label"><i class="fas fa-exclamation-triangle"></i> Urgency</div>
-            <div class="report-detail-value">${urgencyText}</div>
-        </div>
+        
         <div class="report-detail-item">
             <div class="report-detail-label"><i class="fas fa-tag"></i> Status</div>
             <div class="report-detail-value"><span class="status-badge ${statusClass}">${statusText}</span></div>
