@@ -30,7 +30,6 @@
       color: var(--text);
     }
 
-    /* ── BACKGROUND MESH ── */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0;
@@ -50,7 +49,6 @@
       padding: 24px 16px;
     }
 
-    /* ── LOGO ── */
     .logo-area {
       text-align: center;
       margin-bottom: 28px;
@@ -74,7 +72,6 @@
     .stat { font-size: .78rem; color: var(--muted); }
     .stat span { color: var(--accent); font-weight: 600; }
 
-    /* ── CARD ── */
     .card {
       width: 100%; max-width: 440px;
       background: var(--card);
@@ -85,7 +82,6 @@
       animation: fadeUp .45s ease both .1s;
     }
 
-    /* ── TAB BAR ── */
     .tab-bar {
       display: grid; grid-template-columns: 1fr 1fr;
       border-bottom: 1px solid var(--border);
@@ -98,7 +94,6 @@
     .tab-btn.active { color: var(--text); border-bottom: 2px solid var(--accent); background: rgba(46,160,67,.05); }
     .tab-btn:hover:not(.active) { color: var(--text); background: rgba(255,255,255,.03); }
 
-    /* ── INNER TABS (Resident / Responder) ── */
     .role-bar {
       display: flex; gap: 8px; padding: 16px 20px 0;
     }
@@ -110,15 +105,12 @@
     }
     .role-btn.active { background: rgba(46,160,67,.12); border-color: var(--accent); color: var(--accent); }
 
-    /* ── PANELS ── */
     .tab-panel  { display: none; }
     .tab-panel.active { display: block; }
-    .role-panel { display: none; padding: 20px; }
-    .role-panel.active { display: block; }
+    .role-form { display: none; padding: 20px; }
+    .role-form.active { display: block; }
 
-    /* ── FORM ── */
     .form-group { margin-bottom: 14px; }
-    .form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
     label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
@@ -133,7 +125,6 @@
     input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(56,139,253,.15); }
     input::placeholder { color: #484f58; }
 
-    /* ── PASSWORD WRAPPER ── */
     .pw-wrap { position: relative; }
     .pw-wrap input { padding-right: 42px; }
     .pw-toggle {
@@ -144,7 +135,6 @@
     .pw-toggle:hover { color: var(--text); }
     .pw-toggle svg { width: 18px; height: 18px; display: block; }
 
-    /* ── BUTTONS ── */
     .btn-primary {
       width: 100%; padding: 12px;
       background: var(--accent); border: none; border-radius: 8px;
@@ -155,8 +145,7 @@
     .btn-primary:active { transform: scale(.98); }
 
     .demo-hint { text-align: center; margin-top: 10px; font-size: .78rem; color: var(--muted); }
-
-    /* ── FORGOT PASSWORD LINK ── */
+    .note-text { font-size: .78rem; color: var(--muted); margin-top: 10px; text-align: center; }
     .forgot-link {
       display: block; text-align: right; font-size: .8rem;
       color: var(--blue); text-decoration: none; margin-top: -6px; margin-bottom: 10px;
@@ -164,9 +153,6 @@
     }
     .forgot-link:hover { text-decoration: underline; }
 
-    .note-text { font-size: .78rem; color: var(--muted); margin-top: 10px; text-align: center; }
-
-    /* ── OVERLAY / MODAL ── */
     .overlay {
       display: none; position: fixed; inset: 0; z-index: 100;
       background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
@@ -190,28 +176,6 @@
     }
     .modal-close:hover { color: var(--text); }
 
-    /* ── EMAIL VERIFICATION BANNER ── */
-    .verify-banner {
-      display: none; margin: 0 20px 4px;
-      background: rgba(56,139,253,.1); border: 1px solid rgba(56,139,253,.3);
-      border-radius: 10px; padding: 14px 16px;
-      font-size: .85rem;
-    }
-    .verify-banner.show { display: block; animation: fadeIn .3s ease; }
-    .verify-banner strong { color: var(--blue); display: block; margin-bottom: 4px; }
-    .verify-banner span { color: var(--muted); }
-
-    /* ── SUCCESS BANNER ── */
-    .success-banner {
-      display: none; margin: 0 20px 4px;
-      background: rgba(46,160,67,.1); border: 1px solid rgba(46,160,67,.3);
-      border-radius: 10px; padding: 14px 16px;
-      font-size: .85rem;
-    }
-    .success-banner.show { display: block; animation: fadeIn .3s ease; }
-    .success-banner strong { color: var(--accent); display: block; margin-bottom: 4px; }
-
-    /* ── ANIMATIONS ── */
     @keyframes fadeDown { from { opacity:0; transform:translateY(-16px) } to { opacity:1; transform:none } }
     @keyframes fadeUp   { from { opacity:0; transform:translateY(16px)  } to { opacity:1; transform:none } }
     @keyframes fadeIn   { from { opacity:0 } to { opacity:1 } }
@@ -221,171 +185,137 @@
 <body>
 <div class="page-wrapper">
 
-  <!-- LOGO -->
   <div class="logo-area">
     <div class="logo-icon">🏘️</div>
     <h1>CivicFix</h1>
-    <p>Report issues in your community &mdash; get them fixed faster</p>
+    <p>Report issues in your community — get them fixed faster</p>
     <div class="stats">
       <div class="stat"><span>1,234+</span> Issues Resolved</div>
       <div class="stat"><span>98%</span> Response Rate</div>
     </div>
   </div>
 
-  <!-- CARD -->
   <div class="card">
-
-    <!-- Main Tabs -->
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="switchTab('login',this)">Login</button>
-      <button class="tab-btn"        onclick="switchTab('register',this)">Register</button>
+      <button class="tab-btn active" data-tab="login">Login</button>
+      <button class="tab-btn" data-tab="register">Register</button>
     </div>
 
-    <!-- ══════════════ LOGIN PANEL ══════════════ -->
-    <div id="tab-login" class="tab-panel active">
+    <!-- LOGIN PANEL -->
+    <div id="loginPanel" class="tab-panel active">
       <div class="role-bar">
-        <button class="role-btn active" onclick="switchRole('login','resident',this)">👤 Resident</button>
-        <button class="role-btn"        onclick="switchRole('login','responder',this)">🛠️ Responder</button>
+        <button class="role-btn active" data-role="resident-login">👤 Resident</button>
+        <button class="role-btn" data-role="responder-login">🛠️ Responder</button>
       </div>
 
-      <!-- Resident Login -->
-      <div id="login-resident" class="role-panel active">
+      <!-- Resident Login Form (IDs match auth.js) -->
+      <form id="residentLoginForm" class="role-form active">
         <div class="form-group">
           <label>Email Address</label>
-          <input type="email" id="login-email" placeholder="you@example.com" />
+          <input type="email" id="loginResidentEmail" placeholder="you@example.com" />
         </div>
         <div class="form-group">
           <label>Password</label>
           <div class="pw-wrap">
-            <input type="password" id="login-pw" placeholder="••••••••" />
-            <button class="pw-toggle" type="button" onclick="togglePw('login-pw',this)" title="Show/hide password">
-              <svg id="login-pw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <input type="password" id="loginResidentPassword" placeholder="••••••••" />
+            <button class="pw-toggle" type="button" onclick="togglePw('loginResidentPassword',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
         <a class="forgot-link" onclick="openForgot()">Forgot Password?</a>
-        <button class="btn-primary" onclick="handleResidentLogin()">Login as Resident →</button>
+        <button type="submit" class="btn-primary">Login as Resident →</button>
         <p class="demo-hint">Demo: resident@demo.com / 123456</p>
-      </div>
+      </form>
 
-      <!-- Responder Login -->
-      <div id="login-responder" class="role-panel">
+      <!-- Responder Login Form (IDs match auth.js) -->
+      <form id="responderLoginForm" class="role-form">
         <div class="form-group">
           <label>Employee ID</label>
-          <input type="text" id="login-empid" placeholder="e.g. RES-001" />
+          <input type="text" id="loginResponderId" placeholder="e.g. RES-001" />
         </div>
         <div class="form-group">
           <label>Password</label>
           <div class="pw-wrap">
-            <input type="password" id="login-rpw" placeholder="••••••••" />
-            <button class="pw-toggle" type="button" onclick="togglePw('login-rpw',this)" title="Show/hide password">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <input type="password" id="loginResponderPassword" placeholder="••••••••" />
+            <button class="pw-toggle" type="button" onclick="togglePw('loginResponderPassword',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
         <a class="forgot-link" onclick="openForgot()">Forgot Password?</a>
-        <button class="btn-primary" onclick="alert('Responder login!')">Login as Responder →</button>
+        <button type="submit" class="btn-primary">Login as Responder →</button>
         <p class="demo-hint">Demo: RES-001 / 123456</p>
-      </div>
-    </div><!-- /tab-login -->
+      </form>
+    </div>
 
-    <!-- ══════════════ REGISTER PANEL ══════════════ -->
-    <div id="tab-register" class="tab-panel">
+    <!-- REGISTER PANEL -->
+    <div id="registerPanel" class="tab-panel">
       <div class="role-bar">
-        <button class="role-btn active" onclick="switchRole('register','resident',this)">👤 Register as Resident</button>
-        <button class="role-btn"        onclick="switchRole('register','responder',this)">🛠️ Register as Responder</button>
+        <button class="role-btn active" data-role="resident-register">👤 Register as Resident</button>
+        <button class="role-btn" data-role="responder-register">🛠️ Register as Responder</button>
       </div>
 
-      <!-- Email verification banner -->
-      <div id="verify-banner" class="verify-banner">
-        <strong>📧 Check your email!</strong>
-        <span>We sent a verification link to <b id="verify-email-display"></b>. Please verify before logging in.</span>
-      </div>
-
-      <!-- Resident Register -->
-      <div id="register-resident" class="role-panel active">
-        <!-- Full Name broken down -->
-        <div class="form-row-3">
-          <div class="form-group">
-            <label>First Name</label>
-            <input type="text" id="r-fname" placeholder="Juan" />
-          </div>
-          <div class="form-group">
-            <label>Middle Name</label>
-            <input type="text" id="r-mname" placeholder="Cruz" />
-          </div>
-          <div class="form-group">
-            <label>Last Name</label>
-            <input type="text" id="r-lname" placeholder="dela Cruz" />
-          </div>
+      <!-- Resident Registration Form (IDs match auth.js) -->
+      <form id="residentRegisterForm" class="role-form active">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regResidentName" placeholder="Juan Dela Cruz" />
         </div>
         <div class="form-group">
           <label>Email Address</label>
-          <input type="email" id="r-email" placeholder="you@example.com" />
+          <input type="email" id="regResidentEmail" placeholder="you@example.com" />
         </div>
         <div class="form-group">
           <label>Password</label>
           <div class="pw-wrap">
-            <input type="password" id="r-pw" placeholder="Create a strong password" />
-            <button class="pw-toggle" type="button" onclick="togglePw('r-pw',this)" title="Show/hide password">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <input type="password" id="regResidentPassword" placeholder="Create a strong password" />
+            <button class="pw-toggle" type="button" onclick="togglePw('regResidentPassword',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
         <div class="form-group">
           <label>Phone Number</label>
-          <input type="tel" id="r-phone" placeholder="09XX XXX XXXX" />
+          <input type="tel" id="regResidentPhone" placeholder="09XX XXX XXXX" />
         </div>
-        <button class="btn-primary" onclick="handleResidentRegister()">Create Account →</button>
-      </div>
+        <button type="submit" class="btn-primary">Create Account →</button>
+      </form>
 
-      <!-- Responder Register -->
-      <div id="register-responder" class="role-panel">
-        <div class="form-row-3">
-          <div class="form-group">
-            <label>First Name</label>
-            <input type="text" id="rr-fname" placeholder="Maria" />
-          </div>
-          <div class="form-group">
-            <label>Middle Name</label>
-            <input type="text" id="rr-mname" placeholder="Santos" />
-          </div>
-          <div class="form-group">
-            <label>Last Name</label>
-            <input type="text" id="rr-lname" placeholder="Reyes" />
-          </div>
+      <!-- Responder Registration Form (IDs match auth.js) -->
+      <form id="responderRegisterForm" class="role-form">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regResponderName" placeholder="Maria Reyes" />
         </div>
         <div class="form-group">
           <label>Department</label>
-          <input type="text" id="rr-dept" placeholder="e.g. Public Works" />
+          <input type="text" id="regResponderDept" placeholder="e.g. Public Works" />
         </div>
         <div class="form-group">
           <label>Set Password</label>
           <div class="pw-wrap">
-            <input type="password" id="rr-pw" placeholder="Create a strong password" />
-            <button class="pw-toggle" type="button" onclick="togglePw('rr-pw',this)" title="Show/hide password">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <input type="password" id="regResponderPassword" placeholder="Create a strong password" />
+            <button class="pw-toggle" type="button" onclick="togglePw('regResponderPassword',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
         </div>
         <div class="form-group">
           <label>Badge Number</label>
-          <input type="text" id="rr-badge" placeholder="e.g. RES-001" />
+          <input type="text" id="regResponderBadge" placeholder="e.g. RES-001" />
         </div>
-        <button class="btn-primary" onclick="handleResponderRegister()">Register as Responder →</button>
+        <button type="submit" class="btn-primary">Register as Responder →</button>
         <p class="note-text">* Responder accounts need admin approval</p>
-      </div>
+      </form>
+    </div>
+  </div>
+</div>
 
-    </div><!-- /tab-register -->
-  </div><!-- /card -->
-</div><!-- /page-wrapper -->
-
-<!-- ══════════════ FORGOT PASSWORD MODAL ══════════════ -->
+<!-- FORGOT PASSWORD MODAL -->
 <div id="forgot-overlay" class="overlay" onclick="closeForgotOutside(event)">
   <div class="modal">
     <button class="modal-close" onclick="closeForgot()">✕</button>
-
-    <!-- Step 1: Enter email -->
     <div id="forgot-step1">
       <h3>🔑 Forgot Password</h3>
       <p>Enter your registered email and we'll send you a reset link.</p>
@@ -395,112 +325,30 @@
       </div>
       <button class="btn-primary" onclick="sendResetLink()">Send Reset Link →</button>
     </div>
-
-    <!-- Step 2: Confirmation -->
     <div id="forgot-step2" style="display:none; text-align:center;">
       <div style="font-size:3rem; margin-bottom:12px;">📬</div>
       <h3>Reset Link Sent!</h3>
-      <p style="margin-bottom:16px;">
-        Check your inbox at <strong id="forgot-email-display" style="color:var(--blue)"></strong>.
-        The link expires in <strong>15 minutes</strong>.
-      </p>
+      <p style="margin-bottom:16px;">Check your inbox at <strong id="forgot-email-display" style="color:var(--blue)"></strong></p>
       <button class="btn-primary" onclick="closeForgot()">Got it →</button>
     </div>
   </div>
 </div>
 
 <script>
-  /* ── TAB SWITCHING ── */
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    btn.classList.add('active');
-    document.getElementById('verify-banner').classList.remove('show');
-  }
-
-  /* ── ROLE SWITCHING ── */
-  function switchRole(tabId, role, btn) {
-    const panel = document.getElementById('tab-' + tabId);
-    panel.querySelectorAll('.role-panel').forEach(p => p.classList.remove('active'));
-    panel.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId + '-' + role).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  /* ── SHOW / HIDE PASSWORD (mata 👁️) ── */
-  const EYE_OPEN = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
-  const EYE_OFF  = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
-
+  // Password toggle function
   function togglePw(inputId, btn) {
     const inp = document.getElementById(inputId);
     const svg = btn.querySelector('svg');
     if (inp.type === 'password') {
       inp.type = 'text';
-      svg.innerHTML = EYE_OFF;
-      btn.title = 'Hide password';
+      svg.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
     } else {
       inp.type = 'password';
-      svg.innerHTML = EYE_OPEN;
-      btn.title = 'Show password';
+      svg.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
     }
   }
 
-  /* ── RESIDENT REGISTER (shows email verification banner) ── */
-  function handleResidentRegister() {
-    const fname  = document.getElementById('r-fname').value.trim();
-    const lname  = document.getElementById('r-lname').value.trim();
-    const email  = document.getElementById('r-email').value.trim();
-    const pw     = document.getElementById('r-pw').value;
-    const phone  = document.getElementById('r-phone').value.trim();
-
-    if (!fname || !lname || !email || !pw || !phone) {
-      alert('Please fill in all required fields.'); return;
-    }
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      alert('Please enter a valid email address.'); return;
-    }
-    if (pw.length < 6) {
-      alert('Password must be at least 6 characters.'); return;
-    }
-
-    // ---- Call your backend register endpoint here ----
-    // fetch('/api/register', { method:'POST', body: JSON.stringify({...}) })
-
-    // Show email verification banner
-    document.getElementById('verify-email-display').textContent = email;
-    document.getElementById('verify-banner').classList.add('show');
-
-    // Clear fields
-    ['r-fname','r-mname','r-lname','r-email','r-pw','r-phone'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-  }
-
-  /* ── RESPONDER REGISTER ── */
-  function handleResponderRegister() {
-    const fname = document.getElementById('rr-fname').value.trim();
-    const lname = document.getElementById('rr-lname').value.trim();
-    const dept  = document.getElementById('rr-dept').value.trim();
-    const pw    = document.getElementById('rr-pw').value;
-    const badge = document.getElementById('rr-badge').value.trim();
-
-    if (!fname || !lname || !dept || !pw || !badge) {
-      alert('Please fill in all required fields.'); return;
-    }
-    alert('Registration submitted! Awaiting admin approval.');
-  }
-
-  /* ── RESIDENT LOGIN ── */
-  function handleResidentLogin() {
-    const email = document.getElementById('login-email').value.trim();
-    const pw    = document.getElementById('login-pw').value;
-    if (!email || !pw) { alert('Please enter your email and password.'); return; }
-    // ---- Call your backend login endpoint here ----
-    alert('Logging in as resident…');
-  }
-
-  /* ── FORGOT PASSWORD MODAL ── */
+  // Forgot password functions
   function openForgot() {
     document.getElementById('forgot-step1').style.display = 'block';
     document.getElementById('forgot-step2').style.display = 'none';
@@ -516,15 +364,15 @@
   function sendResetLink() {
     const email = document.getElementById('forgot-email').value.trim();
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
-      alert('Please enter a valid email address.'); return;
+      alert('Please enter a valid email address.');
+      return;
     }
-    // ---- Call your backend forgot-password endpoint here ----
-    // fetch('/api/forgot-password', { method:'POST', body: JSON.stringify({ email }) })
-
     document.getElementById('forgot-email-display').textContent = email;
     document.getElementById('forgot-step1').style.display = 'none';
     document.getElementById('forgot-step2').style.display = 'block';
   }
 </script>
+
+<script src="auth.js"></script>
 </body>
 </html>
