@@ -111,6 +111,13 @@
     .role-form.active { display: block; }
 
     .form-group { margin-bottom: 14px; }
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .form-row-3 .form-group { margin-bottom: 0; }
 
     label { display: block; font-size: .8rem; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
     input[type=text], input[type=email], input[type=password], input[type=tel] {
@@ -151,6 +158,29 @@
       cursor: pointer;
     }
     .forgot-link:hover { text-decoration: underline; }
+
+    /* Email Verification Banner */
+    .verify-banner {
+      display: none;
+      margin: 0 20px 16px;
+      background: rgba(56,139,253,.1);
+      border: 1px solid rgba(56,139,253,.3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: .85rem;
+    }
+    .verify-banner.show {
+      display: block;
+      animation: fadeIn .3s ease;
+    }
+    .verify-banner strong {
+      color: var(--blue);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .verify-banner span {
+      color: var(--muted);
+    }
 
     .overlay {
       display: none; position: fixed; inset: 0; z-index: 100;
@@ -222,7 +252,7 @@
             </button>
           </div>
         </div>
-        <a class="forgot-link" onclick="openForgot()">Forgot Password?</a>
+        <a class="forgot-link" onclick="openForgot()">🔐 Forgot Password?</a>
         <button type="submit" class="btn-primary">Login as Resident →</button>
         <p class="demo-hint">Demo: resident@demo.com / 123456</p>
       </form>
@@ -242,7 +272,7 @@
             </button>
           </div>
         </div>
-        <a class="forgot-link" onclick="openForgot()">Forgot Password?</a>
+        <a class="forgot-link" onclick="openForgot()">🔐 Forgot Password?</a>
         <button type="submit" class="btn-primary">Login as Responder →</button>
         <p class="demo-hint">Demo: RES-001 / 123456</p>
       </form>
@@ -255,11 +285,27 @@
         <button class="role-btn" data-role="responder-register">🛠️ Register as Responder</button>
       </div>
 
-      <!-- Resident Registration Form -->
+      <!-- Email Verification Banner -->
+      <div id="verify-banner" class="verify-banner">
+        <strong>📧 Check your email!</strong>
+        <span>We sent a verification link to <b id="verify-email-display"></b>. Please verify before logging in.</span>
+      </div>
+
+      <!-- Resident Registration Form (with First, Middle, Last Name) -->
       <form id="residentRegisterForm" class="role-form active">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="regResidentName" placeholder="Juan Dela Cruz" />
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="regResidentFirstName" placeholder="Juan" />
+          </div>
+          <div class="form-group">
+            <label>Middle Name</label>
+            <input type="text" id="regResidentMiddleName" placeholder="Cruz" />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="regResidentLastName" placeholder="dela Cruz" />
+          </div>
         </div>
         <div class="form-group">
           <label>Email Address</label>
@@ -281,11 +327,21 @@
         <button type="submit" class="btn-primary">Create Account →</button>
       </form>
 
-      <!-- Responder Registration Form -->
+      <!-- Responder Registration Form (with First, Middle, Last Name) -->
       <form id="responderRegisterForm" class="role-form">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="regResponderName" placeholder="Maria Reyes" />
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" id="regResponderFirstName" placeholder="Maria" />
+          </div>
+          <div class="form-group">
+            <label>Middle Name</label>
+            <input type="text" id="regResponderMiddleName" placeholder="Santos" />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" id="regResponderLastName" placeholder="Reyes" />
+          </div>
         </div>
         <div class="form-group">
           <label>Department</label>
@@ -334,41 +390,125 @@
 </div>
 
 <script>
-  // Password toggle function
+  // Password toggle function (Mata/Show Password)
   function togglePw(inputId, btn) {
     const inp = document.getElementById(inputId);
     const svg = btn.querySelector('svg');
     if (inp.type === 'password') {
       inp.type = 'text';
       svg.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+      btn.title = 'Hide password';
     } else {
       inp.type = 'password';
       svg.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+      btn.title = 'Show password';
     }
   }
 
-  // Forgot password functions
+  // Forgot Password Functions
   function openForgot() {
     document.getElementById('forgot-step1').style.display = 'block';
     document.getElementById('forgot-step2').style.display = 'none';
     document.getElementById('forgot-email').value = '';
     document.getElementById('forgot-overlay').classList.add('show');
   }
+  
   function closeForgot() {
     document.getElementById('forgot-overlay').classList.remove('show');
   }
+  
   function closeForgotOutside(e) {
     if (e.target === document.getElementById('forgot-overlay')) closeForgot();
   }
+  
   function sendResetLink() {
     const email = document.getElementById('forgot-email').value.trim();
     if (!email || !/\S+@\S+\.\S+/.test(email)) {
       alert('Please enter a valid email address.');
       return;
     }
+    // Simulate sending reset link
     document.getElementById('forgot-email-display').textContent = email;
     document.getElementById('forgot-step1').style.display = 'none';
     document.getElementById('forgot-step2').style.display = 'block';
+  }
+
+  // Resident Registration Handler (with Email Verification)
+  function handleResidentRegisterLocally(e) {
+    e.preventDefault();
+    const firstName = document.getElementById('regResidentFirstName').value.trim();
+    const middleName = document.getElementById('regResidentMiddleName').value.trim();
+    const lastName = document.getElementById('regResidentLastName').value.trim();
+    const email = document.getElementById('regResidentEmail').value.trim();
+    const password = document.getElementById('regResidentPassword').value;
+    const phone = document.getElementById('regResidentPhone').value.trim();
+
+    if (!firstName || !lastName || !email || !password || !phone) {
+      alert('Please fill in all required fields (First Name, Last Name, Email, Password, Phone).');
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+    if (password.length < 6) {
+      alert('Password must be at least 6 characters.');
+      return;
+    }
+
+    // Combine full name for backend
+    const fullName = middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`;
+    
+    // Show email verification banner
+    document.getElementById('verify-email-display').textContent = email;
+    document.getElementById('verify-banner').classList.add('show');
+    
+    // Clear form
+    document.getElementById('regResidentFirstName').value = '';
+    document.getElementById('regResidentMiddleName').value = '';
+    document.getElementById('regResidentLastName').value = '';
+    document.getElementById('regResidentEmail').value = '';
+    document.getElementById('regResidentPassword').value = '';
+    document.getElementById('regResidentPhone').value = '';
+    
+    // Simulate API call - in production, this would send to your backend
+    console.log('Registration submitted:', { fullName, email, phone });
+    
+    // Auto-hide banner after 5 seconds
+    setTimeout(() => {
+      document.getElementById('verify-banner').classList.remove('show');
+    }, 5000);
+  }
+
+  // Responder Registration Handler
+  function handleResponderRegisterLocally(e) {
+    e.preventDefault();
+    const firstName = document.getElementById('regResponderFirstName').value.trim();
+    const middleName = document.getElementById('regResponderMiddleName').value.trim();
+    const lastName = document.getElementById('regResponderLastName').value.trim();
+    const dept = document.getElementById('regResponderDept').value.trim();
+    const password = document.getElementById('regResponderPassword').value;
+    const badge = document.getElementById('regResponderBadge').value.trim();
+
+    if (!firstName || !lastName || !dept || !password || !badge) {
+      alert('Please fill in all required fields (First Name, Last Name, Department, Password, Badge Number).');
+      return;
+    }
+    if (password.length < 6) {
+      alert('Password must be at least 6 characters.');
+      return;
+    }
+
+    const fullName = middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`;
+    alert(`📝 Registration submitted for ${fullName}! Awaiting admin approval.`);
+    
+    // Clear form
+    document.getElementById('regResponderFirstName').value = '';
+    document.getElementById('regResponderMiddleName').value = '';
+    document.getElementById('regResponderLastName').value = '';
+    document.getElementById('regResponderDept').value = '';
+    document.getElementById('regResponderPassword').value = '';
+    document.getElementById('regResponderBadge').value = '';
   }
 
   // Tab switching (Login/Register)
@@ -379,6 +519,8 @@
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       document.getElementById(tabName + 'Panel').classList.add('active');
       btn.classList.add('active');
+      // Hide verification banner when switching tabs
+      document.getElementById('verify-banner')?.classList.remove('show');
     });
   });
 
@@ -399,11 +541,24 @@
         parent.querySelector('#responderLoginForm').classList.add('active');
       } else if (role === 'resident-register') {
         parent.querySelector('#residentRegisterForm').classList.add('active');
+        document.getElementById('verify-banner')?.classList.remove('show');
       } else if (role === 'responder-register') {
         parent.querySelector('#responderRegisterForm').classList.add('active');
       }
     });
   });
+
+  // Override resident registration form submission
+  const residentRegForm = document.getElementById('residentRegisterForm');
+  if (residentRegForm) {
+    residentRegForm.addEventListener('submit', handleResidentRegisterLocally);
+  }
+
+  // Override responder registration form submission
+  const responderRegForm = document.getElementById('responderRegisterForm');
+  if (responderRegForm) {
+    responderRegForm.addEventListener('submit', handleResponderRegisterLocally);
+  }
 </script>
 
 <script src="auth.js"></script>
